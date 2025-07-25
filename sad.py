@@ -1,3 +1,3 @@
-a = 'Hello world'
+a = 'Hello world!'
 
-print(a)
+print(a, 23)
