@@ -1,1 +1,2 @@
-# microblogs-tutoring-project
+# Микроблог на FastAPI
+
