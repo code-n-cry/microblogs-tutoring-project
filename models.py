@@ -13,7 +13,7 @@ post_to_tag = Table(
 class User(Schema):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    Name =Column(String)
+    name =Column(String)
     hashed_password = Column(String)
     email = Column(String)
     posts = relationship("Post", back_populates="author")
@@ -24,20 +24,13 @@ class Post(Schema):
     id = Column(Integer, primary_key=True)
     title = Column(String)
     content = Column(String)
-    author_id = Column(ForeignKey("user.id"))
+    author_id = Column(ForeignKey("users.id"))
     author = relationship("User", back_populates="posts")
-    tags = relationship("Tag", back_populates="posts")
-
-
-class Post_to_tag(Schema):
-    __tablename__ = "post_to_tag"
-    id = Column(Integer, primary_key=True)
-    post_id = Column(primary_key=True)
-    tag_id = Column(primary_key=True)
+    tags = relationship("Tag", back_populates="posts", secondary=post_to_tag)
 
 
 class Tag(Schema):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True)
     title = Column(String)
-    posts = relationship("Post", back_populates="tags")
+    posts = relationship("Post", back_populates="tags", secondary=post_to_tag)

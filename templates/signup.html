@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="m-3" align="center">Регистрация</h2>
+    <form method="post">
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="name@example.com" name="email">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Юзернейм</label>
+            <input type="text" class="form-control" id="username" placeholder="Ваш юзернейм" name="username">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Пароль</label>
+            <input type="password" class="form-control" id="password" placeholder="Ваш пароль" name="password">
+        </div>
+        <button class="btn btn-primary mb-2">Зарегистрироваться</button>
+    </form>
+    <p class="text-danger">{{ error }}</p>
+</div>
+{% endblock %}
