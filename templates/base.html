@@ -22,8 +22,12 @@
             </div>
         </div>  
         <div class ="text-end">
-            <a class="btn btn-success" href="/signup">Зарегистрироваться</a>
-            <a class="btn btn-danger" href="/login">Войти</a>
+            {% if not user %}
+                <a class="btn btn-success" href="/signup">Зарегистрироваться</a>
+                <a class="btn btn-danger" href="/login">Войти</a>
+            {% else %}
+                <a href="#" class="nav-link px-2 text-secondary">Профиль</a>
+            {% endif %}
         </div>
     </header>
     <div class="container">

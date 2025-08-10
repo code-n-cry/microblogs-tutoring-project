@@ -3,7 +3,7 @@ import jwt
 from datetime import datetime, timedelta
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-SECRET_KEY = "EXAMPLE"
+SECRET_KEY = "c2VjcmV0X2tleQ=="
 ALGORITHM = "HS256"
 
 

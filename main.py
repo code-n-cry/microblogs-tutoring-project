@@ -2,10 +2,8 @@ import jwt
 from fastapi import FastAPI, Request, Cookie, Depends, Form
 from fastapi.templating import Jinja2Templates
 from starlette.responses import RedirectResponse
-
-
 from models import User
-from user.utils import ALGORITHM, SECRET_KEY, hash_password,verify_password,generate_access_token
+from user.utils import ALGORITHM, SECRET_KEY, hash_password, verify_password, generate_access_token
 import session
 
 app = FastAPI()
@@ -22,15 +20,16 @@ def get_db():
 
 
 def get_current_user(
-        access_token: str = Cookie(None),
+        access_token: str = Cookie('access_token'),
         db: session = Depends(get_db)
 ):
     if not access_token:
         return None
     try:
-        payload = jwt.decode(access_token, secret_key=SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get('email')
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get('sub')
     except Exception as e:
+        print(e)
         return None
     user = db.query(User).filter_by(email=email).first()
     return user
@@ -38,7 +37,8 @@ def get_current_user(
 
 @app.get('/')
 def index(request: Request):
-    return templates.TemplateResponse('index.html', {'request': request, 'title': 'Главная'})
+    current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
+    return templates.TemplateResponse('index.html', {'request': request, 'title': 'Главная', 'user': current_user})
 
 
 @app.get('/signup')
@@ -68,11 +68,17 @@ def login_get(request: Request):
 
 
 @app.post('/login')
-def login_post(request: Request,email: str = Form(...),password: str = Form(...), db: session = Depends(get_db)):
+def login_post(request: Request, email: str = Form(...), password: str = Form(...), db: session = Depends(get_db)):
     is_user_already_exists = db.query(User).filter_by(email=email).first()
-    if  not is_user_already_exists or verify_password(password,is_user_already_exists.hashed_password):
-        return {'error':'Неверный ввод данных'}
-    token = generate_access_token(data={'username': is_user_already_exists.name,'email': email})
-    responce = RedirectResponse(url='/')
-    responce.set_cookie(key="access_token",value=token,httponly=True)
+    if not is_user_already_exists or not verify_password(password, is_user_already_exists.hashed_password):
+        return templates.TemplateResponse('login.html',
+                                          {'request': request, 'title': 'Вход', 'error': 'Неверный ввод данных'})
+    token = generate_access_token(data={'sub': email})
+    responce = RedirectResponse(url='/', status_code=302)
+    responce.set_cookie(key="access_token", value=token, httponly=True)
     return responce
+
+
+@app.get('/profile')
+def profile(request: Request):
+    pass
