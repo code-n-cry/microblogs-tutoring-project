@@ -60,3 +60,8 @@ def signup(request: Request, username: str = Form(...),
     db.add(user)
     db.commit()
     return RedirectResponse(url='/login')
+
+
+@app.get('/login')
+def login_get(request: Request):
+    return templates.TemplateResponse('login.html', {'request': request, 'title': 'Вход'})

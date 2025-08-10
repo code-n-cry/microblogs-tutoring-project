@@ -1,10 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block content %}
+<div class="container">
+    <h2 class="m-3" align="center">Вход</h2>
+    <form method="post">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email или юзернейм</label>
+            <input type="text" class="form-control" id="email" placeholder="name@example.com или ваш юзернейм" name="email_or_username">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Пароль</label>
+            <input type="password" class="form-control" id="password" placeholder="Ваш пароль" name="password">
+        </div>
+        <button class="btn btn-primary mb-2">Войти</button>
+    </form>
+    <p class="text-danger">{{ error }}</p>
+</div>
+{% endblock %}
