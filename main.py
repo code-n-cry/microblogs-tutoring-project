@@ -28,7 +28,7 @@ def get_current_user(
         return None
     try:
         payload = jwt.decode(access_token, secret_key=SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get('sub')
+        email = payload.get('email')
     except Exception as e:
         return None
     user = db.query(User).filter_by(email=email).first()
@@ -49,7 +49,6 @@ def signup(request: Request):
 def signup(request: Request, username: str = Form(...),
            email: str = Form(...), password: str = Form(...), db: session = Depends(get_db)):
     is_user_already_exists = db.query(User).filter_by(email=email).first()
-    print(is_user_already_exists)
     if is_user_already_exists:
         return templates.TemplateResponse('signup.html', {'request': request,
                                                           'error': 'Такой пользователь уже есть!'})
