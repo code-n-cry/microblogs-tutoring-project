@@ -1,12 +1,19 @@
 import jwt
-from fastapi import FastAPI, Request, Cookie, Depends, Form
+from fastapi import FastAPI, Request, Cookie, Depends, Form, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.responses import RedirectResponse
 from models import User,Post
+from fastapi.responses import RedirectResponse
+from models import User
 from user.utils import ALGORITHM, SECRET_KEY, hash_password, verify_password, generate_access_token
+import time
+import os
+import shutil
 import session
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 session.init_db()
 
@@ -111,5 +118,42 @@ def create_post(request:Request,name: str = Form(...), content: str = Form(...),
 
 
 @app.get('/profile')
-def profile(request: Request):
-    pass
+def profile(request: Request, db: session = Depends(get_db)):
+    is_authorized = get_current_user(request.cookies.get('access_token'), db=db)
+    if not is_authorized:
+        return RedirectResponse(url='/login')
+    avatar = None
+    if is_authorized.avatar:
+        avatar = '/'.join(is_authorized.avatar.split('/')[1:])
+    print(avatar)
+    return templates.TemplateResponse('profile.html',
+                                      {'request': request, 'user': is_authorized, 'title': 'Ваш профиль',
+                                       'avatar': avatar})
+
+
+@app.get('/profile/edit')
+def profile_edit(request: Request, db: session = Depends(get_db)):
+    is_authorized = get_current_user(request.cookies.get('access_token'), db=db)
+    if not is_authorized:
+        return RedirectResponse(url='/login')
+    return templates.TemplateResponse('profile_edit.html',
+                                      {'request': request, 'user': is_authorized, 'title': 'Изменение профиля'})
+
+
+@app.post('/profile/edit')
+def profile_edit(request: Request, name: str = Form(...), avatar: UploadFile = File(...),
+                 db: session = Depends(get_db)):
+    is_authorized = get_current_user(request.cookies.get('access_token'), db=db)
+    if not is_authorized:
+        return RedirectResponse(url='/login', status_code=302)
+    if name != is_authorized.name:
+        is_authorized.name = name
+    if avatar:
+        path = f'static/media/{is_authorized.name}_{time.time()}'
+        os.makedirs(path, exist_ok=True)
+        with open(path + '/' + avatar.filename, "wb") as file_path:
+            shutil.copyfileobj(avatar.file, file_path)
+        is_authorized.avatar = path + '/' + avatar.filename
+    db.add(is_authorized)
+    db.commit()
+    return RedirectResponse(url='/profile', status_code=302)
