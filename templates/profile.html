@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<h2 align="center" class="m-3">Ваш профиль</h2>
+
+<div class="container">
+
+<div class="text-center m-5">
+    <p><b>Имя пользователя</b>: {{ user.name }}</p>
+    <p><b>Email</b>: {{ user.email }}</p>
+    <p><b>Аватар:</b></p><br>
+    <img src="{{ url_for('static', path=avatar) }}" style="width: 300px; height: 300px"><br>
+    <a href="/profile/edit" class="btn btn-warning m-2">Изменить данные</a>
+</div>
+
+</div>
+
+{% endblock %}

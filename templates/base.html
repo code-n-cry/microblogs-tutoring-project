@@ -16,18 +16,18 @@
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                     <li>
-                        <a href="#" class="nav-link px-2 text-secondary">Главная</a>
+                        <a href="/" class="nav-link px-2 text-secondary">Главная</a>
                     </li>
                 </ul>
             </div>
         </div>  
         <div class ="text-end">
-            {% if not user %}
-                <a class="btn btn-success" href="/signup">Зарегистрироваться</a>
-                <a class="btn btn-danger" href="/login">Войти</a>
-            {% else %}
-                <a href="#" class="nav-link px-2 text-secondary">Профиль</a>
-            {% endif %}
+                {% if not user %}
+                    <a class="btn btn-success" href="/signup">Зарегистрироваться</a>
+                    <a class="btn btn-danger" href="/login">Войти</a>
+                {% else %}
+                    <a href="/profile" class="nav-link px-2 text-secondary me-2">Профиль</a>
+                {% endif %}
         </div>
     </header>
     <div class="container">

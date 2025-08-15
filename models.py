@@ -16,6 +16,7 @@ class User(Schema):
     name =Column(String)
     hashed_password = Column(String)
     email = Column(String)
+    avatar = Column(String, nullable=True)
     posts = relationship("Post", back_populates="author")
 
 
@@ -26,6 +27,7 @@ class Post(Schema):
     content = Column(String)
     author_id = Column(ForeignKey("users.id"))
     author = relationship("User", back_populates="posts")
+    #images
     tags = relationship("Tag", back_populates="posts", secondary=post_to_tag)
 
 
