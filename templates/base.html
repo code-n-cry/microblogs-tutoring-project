@@ -18,6 +18,11 @@
                     <li>
                         <a href="#" class="nav-link px-2 text-secondary">Главная</a>
                     </li>
+                    {% if user %}
+                    <li>
+                        <a class="btn btn-success" href="/create_post">создать пост</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>  
