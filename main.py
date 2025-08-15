@@ -54,16 +54,25 @@ def signup(request: Request):
 @app.post('/signup')
 def signup(request: Request, username: str = Form(...),
            email: str = Form(...), password: str = Form(...), db: session = Depends(get_db)):
+    if len(password) < 5 or not any(i.isalpha() for i in password) or not any(i.isdigit() for i in password):
+        return templates.TemplateResponse('signup.html', {
+            'request': request,
+            'error': 'Пароль должен содержать не менее 5 символов, включая буквы и цифры.'
+        })
     is_user_already_exists = db.query(User).filter_by(email=email).first()
     if is_user_already_exists:
-        return templates.TemplateResponse('signup.html', {'request': request,
-                                                          'error': 'Такой пользователь уже есть!'})
+        return templates.TemplateResponse('signup.html', {
+            'request': request,
+            'error': 'Такой пользователь уже есть!'
+        })
     user = User()
     user.email = email
     user.name = username
     user.hashed_password = hash_password(password)
+
     db.add(user)
     db.commit()
+
     return RedirectResponse(url='/login')
 
 
