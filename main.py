@@ -42,8 +42,12 @@ def get_current_user(
 
 @app.get('/')
 def index(request: Request):
-    current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
-    return templates.TemplateResponse('index.html', {'request': request, 'title': 'Главная', 'user': current_user})
+    db = next(get_db())
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
+    all_posts = db.query(Post).all()
+    return templates.TemplateResponse('index.html',
+                                      {'request': request, 'title': 'Главная', 'user': current_user,\
+                                       'all_posts': all_posts})
 
 
 @app.get('/signup')
@@ -103,14 +107,14 @@ def create_get(request: Request):
 
 @app.post('/create_post')
 def create_post(request: Request, name: str = Form(...), content: str = Form(...), db: session = Depends(get_db)):
-    current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = Post()
     post.title = name
     post.content = content
     post.author = current_user
     db.add(post)
     db.commit()
-    return RedirectResponse(url='/')
+    return RedirectResponse(url='/', status_code=302)
 
 
 @app.get('/profile')
