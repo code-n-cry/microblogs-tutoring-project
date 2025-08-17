@@ -48,7 +48,7 @@ def index(request: Request):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     all_posts = db.query(Post).all()
     return templates.TemplateResponse('index.html',
-                                      {'request': request, 'title': 'Главная', 'user': current_user,\
+                                      {'request': request, 'title': 'Главная', 'user': current_user, \
                                        'all_posts': all_posts})
 
 
@@ -159,3 +159,13 @@ def profile_edit(request: Request, name: str = Form(...), avatar: UploadFile = F
     db.add(is_authorized)
     db.commit()
     return RedirectResponse(url='/profile', status_code=302)
+
+
+@app.get('/users/{user_id}')
+def get_user(request: Request, user_id: int, db: session = Depends(get_db)):
+    need_user = db.query(User).get(user_id)
+    error = None
+    if need_user is None:
+        error = True
+    return templates.TemplateResponse('user_detail.html',
+                                      {'request': request, 'user': need_user, 'error': error})
