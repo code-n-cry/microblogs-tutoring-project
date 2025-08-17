@@ -10,6 +10,14 @@ post_to_tag = Table(
 )
 
 
+class Image(Schema):
+    __tablename__ = "images"
+    id = Column(Integer, primary_key=True)
+    path = Column(String)
+    post_id = Column(ForeignKey("posts.id"))
+    post = relationship("Post", back_populates="images")
+
+
 class User(Schema):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
@@ -27,7 +35,7 @@ class Post(Schema):
     content = Column(String)
     author_id = Column(ForeignKey("users.id"))
     author = relationship("User", back_populates="posts")
-    #images
+    images = relationship("Image", back_populates="post")
     tags = relationship("Tag", back_populates="posts", secondary=post_to_tag)
 
 
