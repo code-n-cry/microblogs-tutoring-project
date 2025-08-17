@@ -3,16 +3,16 @@
 {% block content %}
 <div class="container">
     <h2 class="m-3" align="center">создать пост</h2>
-    <form method="post">
+    <form method="post" >
         <div class="mb-3">
             <label for="name" class="form-label">введите название</label>
             <input type="text" class="form-control" name="name">
         </div>
-        <div class="m-3">
+        <div class="mb-3">
             <label for="text" class="form-label">содержание поста</label>
             <textarea class="form-control" rows="3" name="content"></textarea>
-             <a class="btn btn-success" href="/create_post">Создать пост</a>
         </div>
+        <button class="btn btn-success mb-2">Создать пост</button>
         <div>
             <p class="text-danger">{{ error }}</p>
         </div>

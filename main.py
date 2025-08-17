@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.responses import RedirectResponse
 from models import User,Post
 from fastapi.responses import RedirectResponse
-from models import User
+from models import User, Post
 from user.utils import ALGORITHM, SECRET_KEY, hash_password, verify_password, generate_access_token
 import time
 import os
@@ -44,8 +44,12 @@ def get_current_user(
 
 @app.get('/')
 def index(request: Request):
-    current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
-    return templates.TemplateResponse('index.html', {'request': request, 'title': 'Главная', 'user': current_user})
+    db = next(get_db())
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
+    all_posts = db.query(Post).all()
+    return templates.TemplateResponse('index.html',
+                                      {'request': request, 'title': 'Главная', 'user': current_user,\
+                                       'all_posts': all_posts})
 
 
 @app.get('/signup')
@@ -96,25 +100,23 @@ def login_post(request: Request, email: str = Form(...), password: str = Form(..
 
 
 @app.get('/create_post')
-def create_get(request:Request):
+def create_get(request: Request):
     current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
-    if current_user == None:
+    if current_user is None:
         return RedirectResponse(url='/signup')
-    return templates.TemplateResponse('create_post.html',{'request': request,'title': 'создать пост'})
+    return templates.TemplateResponse('create_post.html', {'request': request, 'title': 'создать пост'})
 
 
 @app.post('/create_post')
-def create_post(request:Request,name: str = Form(...), content: str = Form(...),db: session = Depends(get_db)):
-    current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
+def create_post(request: Request, name: str = Form(...), content: str = Form(...), db: session = Depends(get_db)):
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = Post()
     post.title = name
     post.content = content
     post.author = current_user
-    
     db.add(post)
     db.commit()
-    return RedirectResponse(url='/')
-     
+    return RedirectResponse(url='/', status_code=302)
 
 
 @app.get('/profile')
