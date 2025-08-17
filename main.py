@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, Cookie, Depends, Form, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
-from models import User
+from models import User, Post
 from user.utils import ALGORITHM, SECRET_KEY, hash_password, verify_password, generate_access_token
 import time
 import os
@@ -91,6 +91,26 @@ def login_post(request: Request, email: str = Form(...), password: str = Form(..
     responce = RedirectResponse(url='/', status_code=302)
     responce.set_cookie(key="access_token", value=token, httponly=True)
     return responce
+
+
+@app.get('/create_post')
+def create_get(request: Request):
+    current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
+    if current_user is None:
+        return RedirectResponse(url='/signup')
+    return templates.TemplateResponse('create_post.html', {'request': request, 'title': 'создать пост'})
+
+
+@app.post('/create_post')
+def create_post(request: Request, name: str = Form(...), content: str = Form(...), db: session = Depends(get_db)):
+    current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
+    post = Post()
+    post.title = name
+    post.content = content
+    post.author = current_user
+    db.add(post)
+    db.commit()
+    return RedirectResponse(url='/')
 
 
 @app.get('/profile')
