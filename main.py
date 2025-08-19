@@ -127,7 +127,6 @@ def profile(request: Request, db: session = Depends(get_db)):
     avatar = None
     if is_authorized.avatar:
         avatar = '/'.join(is_authorized.avatar.split('/')[1:])
-    print(avatar)
     return templates.TemplateResponse('profile.html',
                                       {'request': request, 'user': is_authorized, 'title': 'Ваш профиль',
                                        'avatar': avatar})
