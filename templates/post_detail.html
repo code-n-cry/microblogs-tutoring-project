@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        {% if not error %}
+            <h2 align="center">Информация о посте:</h2>
+            <p><b>Название:</b> {{ post.title }}</p>
+            <p><b>Содержание:</b> {{ post.content }}</p>
+
+            {% if post.image %}
+                <p><b>Изображение:</b></p><br>
+                <img src="{{ url_for('static', path=post.image) }}" style="max-width: 300px;"><br>
+            {% endif %}
+
+            <p class="mt-3">
+                <a href="/users/{{ post.author.id }}">Об авторе</a>
+            </p>
+        {% else %}
+            <h2 align="center">К сожалению, такого поста не существует! :(</h2>
+        {% endif %}
+    </div>
+{% endblock %}

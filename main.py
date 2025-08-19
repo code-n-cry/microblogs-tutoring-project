@@ -169,3 +169,13 @@ def get_user(request: Request, user_id: int, db: session = Depends(get_db)):
         error = True
     return templates.TemplateResponse('user_detail.html',
                                       {'request': request, 'user': need_user, 'error': error})
+
+
+@app.get('/posts/{post_id}')
+def get_posts(request:Request,post_id: int, db: session = Depends(get_db)):
+    need_post = db.query(Post).get(post_id)
+    error = None
+    if need_post is None:
+        error = True
+    return templates.TemplateResponse('post_detail.html',
+                                      {'request': request, 'post': need_post,'error': error})
