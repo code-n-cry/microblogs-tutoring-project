@@ -10,7 +10,11 @@
     <p><b>Имя пользователя</b>: {{ user.name }}</p>
     <p><b>Email</b>: {{ user.email }}</p>
     <p><b>Аватар:</b></p><br>
-    <img src="{{ url_for('static', path=avatar) }}" style="width: 300px; height: 300px"><br>
+    {% if avatar %}
+        <img src="{{ url_for('static', path=avatar) }}" style="width: 300px; height: 300px"><br>
+    {% else %}
+        <p>Вы пока что не загрузили аватарку...</p>
+    {% endif %}
     <a href="/profile/edit" class="btn btn-warning m-2">Изменить данные</a>
 </div>
 

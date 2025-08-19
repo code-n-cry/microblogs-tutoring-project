@@ -2,8 +2,7 @@ import jwt
 from fastapi import FastAPI, Request, Cookie, Depends, Form, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.responses import RedirectResponse
-from models import User,Post
+from typing import List
 from fastapi.responses import RedirectResponse
 from models import User, Post
 from user.utils import ALGORITHM, SECRET_KEY, hash_password, verify_password, generate_access_token
@@ -108,12 +107,21 @@ def create_get(request: Request):
 
 
 @app.post('/create_post')
-def create_post(request: Request, name: str = Form(...), content: str = Form(...), db: session = Depends(get_db)):
+def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = Post()
     post.title = name
     post.content = content
     post.author = current_user
+    if images:
+        if len(images) > 5:
+            error = 'Не может больше 5 картинок!'
+            return templates.TemplateResponse('create_post.html', {'request': request, 'title': 'создать пост', 'error': error})
+        if len(images) >= 1 and images[0].filename != '':
+            '''path = f'static/media/{current_user.name}_{time.time()}'
+            os.makedirs(path, exist_ok=True)
+            for image in images:'''
+
     db.add(post)
     db.commit()
     return RedirectResponse(url='/', status_code=302)
@@ -150,11 +158,14 @@ def profile_edit(request: Request, name: str = Form(...), avatar: UploadFile = F
     if name != is_authorized.name:
         is_authorized.name = name
     if avatar:
-        path = f'static/media/{is_authorized.name}_{time.time()}'
-        os.makedirs(path, exist_ok=True)
-        with open(path + '/' + avatar.filename, "wb") as file_path:
-            shutil.copyfileobj(avatar.file, file_path)
-        is_authorized.avatar = path + '/' + avatar.filename
+        try:
+            path = f'static/media/{is_authorized.name}_{time.time()}'
+            os.makedirs(path, exist_ok=True)
+            with open(path + '/' + avatar.filename, "wb") as file_path:
+                shutil.copyfileobj(avatar.file, file_path)
+            is_authorized.avatar = path[7:] + '/' + avatar.filename
+        except Exception as e:
+            pass
     db.add(is_authorized)
     db.commit()
     return RedirectResponse(url='/profile', status_code=302)

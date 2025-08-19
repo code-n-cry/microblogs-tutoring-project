@@ -29,7 +29,13 @@
                         <a class="btn btn-success me-2" href="/signup">Зарегистрироваться</a>
                         <a class="btn btn-danger" href="/login">Войти</a>
                     {% else %}
-                        <a href="/profile" class="nav-link px-2 text-secondary me-2">Профиль</a>
+                        <a href="/profile" class="nav-link px-2 text-secondary me-2">
+                        {% if user.avatar %}
+                            <img src="{{ url_for('static', path=user.avatar) }}" style="width: 40px;" class="bg-info rounded-circle"><br>
+                        {% else %}
+                            <img src="{{ url_for('static', path='/images/blank_avatar.jpg') }}" style="width: 40px;" class="bg-info rounded-circle"><br>
+                        {% endif %}
+                        Профиль</a>
                     {% endif %}
                 </div>
             </div>
