@@ -126,8 +126,7 @@ def profile(request: Request, db: session = Depends(get_db)):
         return RedirectResponse(url='/login')
     avatar = None
     if is_authorized.avatar:
-        avatar = '/'.join(is_authorized.avatar.split('/')[1:])
-    print(avatar)
+        avatar = is_authorized.avatar 
     return templates.TemplateResponse('profile.html',
                                       {'request': request, 'user': is_authorized, 'title': 'Ваш профиль',
                                        'avatar': avatar})
@@ -155,7 +154,7 @@ def profile_edit(request: Request, name: str = Form(...), avatar: UploadFile = F
         os.makedirs(path, exist_ok=True)
         with open(path + '/' + avatar.filename, "wb") as file_path:
             shutil.copyfileobj(avatar.file, file_path)
-        is_authorized.avatar = path + '/' + avatar.filename
+        is_authorized.avatar = path[7:] + '/' + avatar.filename
     db.add(is_authorized)
     db.commit()
     return RedirectResponse(url='/profile', status_code=302)
