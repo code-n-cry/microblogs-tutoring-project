@@ -5,14 +5,39 @@
 <div class="container">
     {% for post in all_posts %}
         <div class="card m-3">
-            <h5 class="card-title"><b>{{ post.title }}</b></h5>
-            <p class="card-text">{{ post.content }}</p>
-            <a href="/posts/{{ post.id }}" class="card-link">О посте</a>
-            <a href="/users/{{ post.author.id }}" class="card-link">Об авторе</a>
-            <img src="..." class="card-img-top" alt="...">
-            { % if post.images %}
-            {% for image in post.images %}
-            {% if image == 1 %}
+            {% if post.images %}
+                {% if post.images|length == 1 %}
+                    <img src="{{ url_for('static', path=post.images[0].path) }}" class="card-img-top" style="width: 200px; height: 200px">
+                {% else %}
+                    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="{{ url_for('static', path=post.images[0].path) }}" class="card-img-top" style="width: 200px; height: 200px">
+                            </div>
+                            {% for image in post.images[1:] %}
+                                <div class="carousel-item">
+                                    <img src="{{ url_for('static', path=image.path) }}" class="card-img-top" style="width: 200px; height: 200px">
+                                </div>
+                            {% endfor %}
+
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                {% endif %}
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title"><b>{{ post.title }}</b></h5>
+                <p class="card-text">{{ post.content }}</p>
+                <a href="/posts/{{ post.id }}" class="card-link">О посте</a>
+                <a href="/users/{{ post.author.id }}" class="card-link">Об авторе</a>
+            </div>
         </div>
     {% endfor %}
 </div>
