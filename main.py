@@ -115,7 +115,7 @@ def create_post(request: Request, name: str = Form(...), content: str = Form(...
     post.author = current_user
     if images:
         if len(images) > 5:
-            error = 'Не может больше 5 картинок!'
+            error = 'Не может быть больше 5 картинок!'
             return templates.TemplateResponse('create_post.html', {'request': request, 'title': 'создать пост', 'error': error})
         if len(images) >= 1 and images[0].filename != '':
             '''path = f'static/media/{current_user.name}_{time.time()}'
