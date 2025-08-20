@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from typing import List
 from fastapi.responses import RedirectResponse
-from models import User, Post
+from models import User, Post, Image
 from user.utils import ALGORITHM, SECRET_KEY, hash_password, verify_password, generate_access_token
 import time
 import os
@@ -118,9 +118,16 @@ def create_post(request: Request, name: str = Form(...), content: str = Form(...
             error = 'Не может быть больше 5 картинок!'
             return templates.TemplateResponse('create_post.html', {'request': request, 'title': 'создать пост', 'error': error})
         if len(images) >= 1 and images[0].filename != '':
-            '''path = f'static/media/{current_user.name}_{time.time()}'
+            path = f'static/media/{current_user.name}_{time.time()}'
             os.makedirs(path, exist_ok=True)
-            for image in images:'''
+            for image in images:
+                image_file = Image()
+                image_file.path = path[7:] + '/' + image.filename
+                image_file.post = post
+                with open(path + '/' + image.filename,"wb") as images_file_path:
+                    shutil.copyfileobj(image.file, images_file_path)
+                    db.add(image_file)
+
 
     db.add(post)
     db.commit()

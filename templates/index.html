@@ -9,6 +9,10 @@
             <p class="card-text">{{ post.content }}</p>
             <a href="/posts/{{ post.id }}" class="card-link">О посте</a>
             <a href="/users/{{ post.author.id }}" class="card-link">Об авторе</a>
+            <img src="..." class="card-img-top" alt="...">
+            { % if post.images %}
+            {% for image in post.images %}
+            {% if image == 1 %}
         </div>
     {% endfor %}
 </div>
