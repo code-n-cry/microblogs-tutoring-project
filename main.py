@@ -185,7 +185,7 @@ def get_user(request: Request, user_id: int, db: session = Depends(get_db)):
     if need_user is None:
         error = True
     return templates.TemplateResponse('user_detail.html',
-                                      {'request': request, 'user': need_user, 'error': error})
+                                      {'request': request, 'user': need_user,'title': 'id пользователей', 'error': error})
 
 
 @app.get('/posts/{post_id}')
@@ -195,4 +195,31 @@ def get_posts(request:Request,post_id: int, db: session = Depends(get_db)):
     if need_post is None:
         error = True
     return templates.TemplateResponse('post_detail.html',
-                                      {'request': request, 'post': need_post,'error': error})
+                                      {'request': request, 'post': need_post,'title': 'id постов','error': error})
+
+
+@app.get('/my_posts')
+def posts(request: Request):
+    db = next(get_db())
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
+    all_posts = db.query(Post).filter_by(author = current_user).all()
+    return templates.TemplateResponse('my_post.html',
+                                      {'request': request, 'title': 'Ваши посты', 'user': current_user, \
+                                       'all_posts': all_posts})
+
+
+@app.get("/posts/{post_id}/delete")
+def delete_post(request: Request,post_id: int,db: session = Depends(get_db)):
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
+    post = db.query(Post).filter_by(author = current_user,id = post_id).first()
+    if post:
+        if post.images:
+            for image in post.images:
+                full_path = 'static/' + image.path
+                os.remove(full_path)
+                db.query(Image).filter_by(id=image.id).delete()
+        db.query(Post).filter_by(id = post_id).delete()
+        db.commit()
+        return RedirectResponse(url= '/my_posts')
+    return RedirectResponse(url='/login')
+    

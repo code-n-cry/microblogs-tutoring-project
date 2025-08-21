@@ -19,9 +19,12 @@
                         <a href="/" class="nav-link px-2 text-secondary">Главная</a>
                     </li>
                     {% if user %}
-                        <li>
-                            <a class="btn btn-success" href="/create_post">создать пост</a>
-                        </li>
+                    <li>
+                        <a class="px-2 btn-success" href="/create_post">создать пост</a>
+                    </li>
+                    <li>
+                        <a class="px-2 btn-success" href="/my_posts">Ваши посты</a>
+                    </li>
                     {% endif %}
                 </ul>
                 <div class="text-end">
