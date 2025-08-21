@@ -19,9 +19,9 @@
                         <a href="/" class="nav-link px-2 text-secondary">Главная</a>
                     </li>
                     {% if user %}
-                    <li>
-                        <a class="btn btn-success" href="/create_post">создать пост</a>
-                    </li>
+                        <li>
+                            <a class="btn btn-success" href="/create_post">создать пост</a>
+                        </li>
                     {% endif %}
                 </ul>
                 <div class="text-end">
@@ -29,21 +29,25 @@
                         <a class="btn btn-success me-2" href="/signup">Зарегистрироваться</a>
                         <a class="btn btn-danger" href="/login">Войти</a>
                     {% else %}
-                        <a href="/profile" class="nav-link px-2 text-secondary me-2">
-                        {% if user.avatar %}
-                            <img src="{{ url_for('static', path=user.avatar) }}" style="width: 40px;" class="bg-info rounded-circle"><br>
-                        {% else %}
-                            <img src="{{ url_for('static', path='/images/blank_avatar.jpg') }}" style="width: 40px;" class="bg-info rounded-circle"><br>
-                        {% endif %}
-                        Профиль</a>
+                        <a href="/profile" class="nav-link px-2 text-secondary me-2 d-flex align-items-center">
+                            {% if user.avatar %}
+                                <img src="{{ url_for('static', path=user.avatar) }}" style="width: 40px;"
+                                     class="bg-info rounded-circle me-2">
+                            {% else %}
+                                <img src="{{ url_for('static', path='/images/blank_avatar.jpg') }}" style="width: 40px;"
+                                     class="bg-info rounded-circle me-2">
+                            {% endif %}
+                            <span>Профиль</span>
+                        </a>
+
                     {% endif %}
                 </div>
             </div>
         </div>
     </header>
     <div class="container">
-       {% block content %}
-       {% endblock %}
+        {% block content %}
+        {% endblock %}
     </div>
 </main>
 </body>
