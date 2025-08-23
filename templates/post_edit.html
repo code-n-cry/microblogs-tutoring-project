@@ -6,11 +6,15 @@
         <h2 class="m-3" align="center">Изменение поста</h2>
         <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
-                <label for="name" class="form-label">пост</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}">
+                <label for="name" class="form-label">Название</label>
+                <input type="text" class="form-control" id="name" name="title" value="{{ post.title }}">
             </div>
             <div class="mb-3">
-                <label for="formFile" class="form-label">изменить пост</label>
+                <label for="name" class="form-label">Содержание</label>
+                <textarea class="form-control" rows="3" name="content">{{ post.content }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="formFile" class="form-label">Загрузить картинки</label>
                 <input class="form-control" type="file" id="formFile" name="avatar">
             </div>
             <button class="btn btn-success mb-2">Изменить</button>

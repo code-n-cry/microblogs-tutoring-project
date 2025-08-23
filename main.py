@@ -223,3 +223,11 @@ def delete_post(request: Request,post_id: int,db: session = Depends(get_db)):
         return RedirectResponse(url= '/my_posts')
     return RedirectResponse(url='/login')
     
+
+@app.get("/posts/{post_id}/edit")
+def edit_post(request: Request, post_id: int, db: session = Depends(get_db)):
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
+    post = db.query(Post).filter_by(author = current_user,id = post_id).first()
+    if post:
+        return templates.TemplateResponse('post_edit.html', {'request': request, 'post': post})
+    return RedirectResponse(url='/login')
