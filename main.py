@@ -107,7 +107,8 @@ def create_get(request: Request):
 
 
 @app.post('/create_post')
-def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),db: session = Depends(get_db)):
+def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),
+                db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = Post()
     post.title = name
@@ -116,7 +117,8 @@ def create_post(request: Request, name: str = Form(...), content: str = Form(...
     if images:
         if len(images) > 5:
             error = 'Не может быть больше 5 картинок!'
-            return templates.TemplateResponse('create_post.html', {'request': request, 'title': 'создать пост', 'error': error})
+            return templates.TemplateResponse('create_post.html',
+                                              {'request': request, 'title': 'создать пост', 'error': error})
         if len(images) >= 1 and images[0].filename != '':
             path = f'static/media/{current_user.name}_{time.time()}'
             os.makedirs(path, exist_ok=True)
@@ -124,10 +126,9 @@ def create_post(request: Request, name: str = Form(...), content: str = Form(...
                 image_file = Image()
                 image_file.path = path[7:] + '/' + image.filename
                 image_file.post = post
-                with open(path + '/' + image.filename,"wb") as images_file_path:
+                with open(path + '/' + image.filename, "wb") as images_file_path:
                     shutil.copyfileobj(image.file, images_file_path)
                     db.add(image_file)
-
 
     db.add(post)
     db.commit()
@@ -185,58 +186,62 @@ def get_user(request: Request, user_id: int, db: session = Depends(get_db)):
     if need_user is None:
         error = True
     return templates.TemplateResponse('user_detail.html',
-                                      {'request': request, 'user': need_user,'title': 'id пользователей', 'error': error})
+                                      {'request': request, 'user': need_user, 'title': 'id пользователей',
+                                       'error': error})
 
 
 @app.get('/posts/{post_id}')
-def get_posts(request:Request,post_id: int, db: session = Depends(get_db)):
+def get_posts(request: Request, post_id: int, db: session = Depends(get_db)):
     need_post = db.query(Post).get(post_id)
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
     error = None
     if need_post is None:
         error = True
     return templates.TemplateResponse('post_detail.html',
-                                      {'request': request, 'post': need_post,'title': 'id постов','error': error})
+                                      {'request': request, 'post': need_post, 'title': 'id постов', 'error': error,
+                                       'user': current_user})
 
 
 @app.get('/my_posts')
 def posts(request: Request):
     db = next(get_db())
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
-    all_posts = db.query(Post).filter_by(author = current_user).all()
+    all_posts = db.query(Post).filter_by(author=current_user).all()
     return templates.TemplateResponse('my_post.html',
                                       {'request': request, 'title': 'Ваши посты', 'user': current_user, \
                                        'all_posts': all_posts})
 
 
 @app.get("/posts/{post_id}/delete")
-def delete_post(request: Request,post_id: int,db: session = Depends(get_db)):
+def delete_post(request: Request, post_id: int, db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
-    post = db.query(Post).filter_by(author = current_user,id = post_id).first()
+    post = db.query(Post).filter_by(author=current_user, id=post_id).first()
     if post:
         if post.images:
             for image in post.images:
                 full_path = 'static/' + image.path
                 os.remove(full_path)
                 db.query(Image).filter_by(id=image.id).delete()
-        db.query(Post).filter_by(id = post_id).delete()
+        db.query(Post).filter_by(id=post_id).delete()
         db.commit()
-        return RedirectResponse(url= '/my_posts')
+        return RedirectResponse(url='/my_posts')
     return RedirectResponse(url='/login')
-    
+
 
 @app.get("/posts/{post_id}/edit")
 def edit_post(request: Request, post_id: int, db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
-    post = db.query(Post).filter_by(author = current_user,id = post_id).first()
+    post = db.query(Post).filter_by(author=current_user, id=post_id).first()
     if post:
-        return templates.TemplateResponse('post_edit.html', {'request': request, 'post': post})
+        return templates.TemplateResponse('post_edit.html', {'request': request, 'post': post, 'user': current_user})
     return RedirectResponse(url='/login')
 
 
 @app.post("/posts/{post_id}/edit")
-def edit_post(request: Request,post_id: int,title: str = Form(...),content: str = Form(...), images: List[UploadFile] = File(...), db: session = Depends(get_db)):
+def edit_post(request: Request, post_id: int, title: str = Form(...), content: str = Form(...),
+              images: List[UploadFile] = File(...), db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
-    post = db.query(Post).filter_by(author = current_user,id = post_id).first()
+    post = db.query(Post).filter_by(author=current_user, id=post_id).first()
     error = None
     if post:
         if post.title != title:
@@ -245,23 +250,23 @@ def edit_post(request: Request,post_id: int,title: str = Form(...),content: str 
             post.content = content
         if len(post.images) > 5:
             error = True
-            return templates.TemplateResponse('post_edit.html',{'request': request,'error': error,'post': post})
+            return templates.TemplateResponse('post_edit.html',
+                                              {'request': request, 'error': error, 'post': post, 'user': current_user})
         if len(images) >= 1 and images[0].filename != '':
             if post.images:
                 for image in post.images:
                     full_path = 'static/' + image.path
                     os.remove(full_path)
                     db.query(Image).filter_by(id=image.id).delete()
-                db.commit()
             path = f'static/media/{current_user.name}_{time.time()}'
             os.makedirs(path, exist_ok=True)
             for image in images:
                 image_file = Image()
                 image_file.path = path[7:] + '/' + image.filename
                 image_file.post = post
-                with open(path + '/' + image.filename,"wb") as images_file_path:
+                with open(path + '/' + image.filename, "wb") as images_file_path:
                     shutil.copyfileobj(image.file, images_file_path)
                 db.add(image_file)
-            return RedirectResponse(url= '/my_posts',status_code=302)
-        return RedirectResponse(url='/login',status_code=302)
-
+            db.commit()
+            return RedirectResponse(url='/my_posts', status_code=302)
+        return RedirectResponse(url='/login', status_code=302)
