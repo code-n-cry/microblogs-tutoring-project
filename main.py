@@ -231,3 +231,37 @@ def edit_post(request: Request, post_id: int, db: session = Depends(get_db)):
     if post:
         return templates.TemplateResponse('post_edit.html', {'request': request, 'post': post})
     return RedirectResponse(url='/login')
+
+
+@app.post("/posts/{post_id}/edit")
+def edit_post(request: Request,post_id: int,title: str = Form(...),content: str = Form(...), images: List[UploadFile] = File(...), db: session = Depends(get_db)):
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
+    post = db.query(Post).filter_by(author = current_user,id = post_id).first()
+    error = None
+    if post:
+        if post.title != title:
+            post.title = title
+        if post.content != content:
+            post.content = content
+        if len(post.images) > 5:
+            error = True
+            return templates.TemplateResponse('post_edit.html',{'request': request,'error': error,'post': post})
+        if len(images) >= 1 and images[0].filename != '':
+            if post.images:
+                for image in post.images:
+                    full_path = 'static/' + image.path
+                    os.remove(full_path)
+                    db.query(Image).filter_by(id=image.id).delete()
+                db.commit()
+            path = f'static/media/{current_user.name}_{time.time()}'
+            os.makedirs(path, exist_ok=True)
+            for image in images:
+                image_file = Image()
+                image_file.path = path[7:] + '/' + image.filename
+                image_file.post = post
+                with open(path + '/' + image.filename,"wb") as images_file_path:
+                    shutil.copyfileobj(image.file, images_file_path)
+                db.add(image_file)
+            return RedirectResponse(url= '/my_posts',status_code=302)
+        return RedirectResponse(url='/login',status_code=302)
+
