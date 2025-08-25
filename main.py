@@ -158,8 +158,16 @@ def profile(request: Request, db: session = Depends(get_db)):
 
 
 @app.get('/tags/create/{tag_name}')
-def create_tag():
-    pass
+def create_tag(request:Request,tag_name: str,db: session = Depends(get_db)):
+    is_authorized = get_current_user(request.cookies.get('access_token'), db=db)
+    if not is_authorized:
+        return RedirectResponse(url='/login')
+    if filter_tag(tag_name) == True:
+        tag = Tag()
+        tag.title = tag_name
+        db.add(tag)
+        db.commit()
+    
 
 
 @app.get('/profile/edit')
