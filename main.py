@@ -186,7 +186,7 @@ def get_user(request: Request, user_id: int, db: session = Depends(get_db)):
     if need_user is None:
         error = True
     return templates.TemplateResponse('user_detail.html',
-                                      {'request': request, 'user': need_user, 'title': 'id пользователей',
+                                      {'request': request, 'user': need_user, 'title': 'имя пользователей',
                                        'error': error})
 
 
@@ -198,7 +198,7 @@ def get_posts(request: Request, post_id: int, db: session = Depends(get_db)):
     if need_post is None:
         error = True
     return templates.TemplateResponse('post_detail.html',
-                                      {'request': request, 'post': need_post, 'title': 'id постов', 'error': error,
+                                      {'request': request, 'post': need_post, 'title': 'название постов', 'error': error,
                                        'user': current_user})
 
 
@@ -233,7 +233,7 @@ def edit_post(request: Request, post_id: int, db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = db.query(Post).filter_by(author=current_user, id=post_id).first()
     if post:
-        return templates.TemplateResponse('post_edit.html', {'request': request, 'post': post, 'user': current_user})
+        return templates.TemplateResponse('post_edit.html', {'request': request,'title': ' изменить пост', 'post': post, 'user': current_user})
     return RedirectResponse(url='/login')
 
 
@@ -251,7 +251,7 @@ def edit_post(request: Request, post_id: int, title: str = Form(...), content: s
         if len(post.images) > 5:
             error = True
             return templates.TemplateResponse('post_edit.html',
-                                              {'request': request, 'error': error, 'post': post, 'user': current_user})
+                                              {'request': request,'title': ' изменить пост', 'error': error, 'post': post, 'user': current_user})
         if len(images) >= 1 and images[0].filename != '':
             if post.images:
                 for image in post.images:
