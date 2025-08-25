@@ -4,6 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from typing import List
 from fastapi.responses import RedirectResponse
+from tensorflow.python.keras.distribute.strategy_combinations import parameter_server_strategies_single_worker
+
 from models import User, Post, Image, Tag
 from user.utils import ALGORITHM, SECRET_KEY, hash_password, verify_password, generate_access_token
 import time
@@ -157,17 +159,17 @@ def profile(request: Request, db: session = Depends(get_db)):
                                        'avatar': avatar})
 
 
-@app.get('/tags/create/{tag_name}')
-def create_tag(request:Request,tag_name: str,db: session = Depends(get_db)):
+@app.get('/tags/create/')
+def create_tag(request:Request, db: session = Depends(get_db)):
     is_authorized = get_current_user(request.cookies.get('access_token'), db=db)
     if not is_authorized:
         return RedirectResponse(url='/login')
-    if filter_tag(tag_name) == True:
-        tag = Tag()
-        tag.title = tag_name
-        db.add(tag)
-        db.commit()
+    return templates.TemplateResponse('create_tag.html', {'request': request, 'user': is_authorized})
     
+
+@app.post('/tags/create')
+def create_tag(request: Request, name: Form(...), db: session = Depends(get_db)):
+    pass
 
 
 @app.get('/profile/edit')
