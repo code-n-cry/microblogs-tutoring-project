@@ -16,9 +16,22 @@
             <label for="formFileMultiple" class="form-label">Загрузите до 5 картинок</label>
             <input class="form-control" type="file" id="formFileMultiple" multiple name="images">
         </div>
+        <div class="mb-3">
+            <select class="form-select" aria-label="Default select example">
+                <option selected>Выберите тег внизу:</option>
+                {% for tag in tags %}
+                    <option value="{{ loop.index }}">{{ tag.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="tags" class="form-label">или создайте новый тег:</label>
+            <input class="form-control" type="text" name="tags" id="tag_input">
+            <button class="btn btn-primary mt-2" id="create_button" onclick="">Создать тег</button>
+        </div>
         <button class="btn btn-success mb-2">Создать пост</button>
         <div>
             <p class="text-danger">{{ error }}</p>
         </div>
-
+    <script src="{{ url_for('static', path='script.js') }}"></script>
 {% endblock %}

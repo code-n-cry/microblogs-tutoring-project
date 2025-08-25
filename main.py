@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from typing import List
 from fastapi.responses import RedirectResponse
-from models import User, Post, Image
+from models import User, Post, Image, Tag
 from user.utils import ALGORITHM, SECRET_KEY, hash_password, verify_password, generate_access_token
 import time
 import os
@@ -15,6 +15,13 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 session.init_db()
+
+
+def filter_tag(tag_name):
+    if len(tag_name) > 15 or len(
+            tag_name.split()) > 1 or ',' in tag_name or '.' in tag_name or '?' in tag_name or '!' in tag_name:
+        return False
+    return True
 
 
 def get_db():
@@ -99,11 +106,13 @@ def login_post(request: Request, email: str = Form(...), password: str = Form(..
 
 
 @app.get('/create_post')
-def create_get(request: Request):
-    current_user = get_current_user(request.cookies.get('access_token'), db=next(get_db()))
+def create_get(request: Request, db: session = Depends(get_db)):
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
+    all_tags = db.query(Tag).all()
     if current_user is None:
         return RedirectResponse(url='/signup')
-    return templates.TemplateResponse('create_post.html', {'request': request, 'title': 'создать пост'})
+    return templates.TemplateResponse('create_post.html',
+                                      {'request': request, 'title': 'создать пост', 'tags': all_tags})
 
 
 @app.post('/create_post')
@@ -146,6 +155,11 @@ def profile(request: Request, db: session = Depends(get_db)):
     return templates.TemplateResponse('profile.html',
                                       {'request': request, 'user': is_authorized, 'title': 'Ваш профиль',
                                        'avatar': avatar})
+
+
+@app.get('/tags/create/{tag_name}')
+def create_tag():
+    pass
 
 
 @app.get('/profile/edit')
@@ -198,7 +212,8 @@ def get_posts(request: Request, post_id: int, db: session = Depends(get_db)):
     if need_post is None:
         error = True
     return templates.TemplateResponse('post_detail.html',
-                                      {'request': request, 'post': need_post, 'title': 'название постов', 'error': error,
+                                      {'request': request, 'post': need_post, 'title': 'название постов',
+                                       'error': error,
                                        'user': current_user})
 
 
@@ -233,7 +248,9 @@ def edit_post(request: Request, post_id: int, db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = db.query(Post).filter_by(author=current_user, id=post_id).first()
     if post:
-        return templates.TemplateResponse('post_edit.html', {'request': request,'title': ' изменить пост', 'post': post, 'user': current_user})
+        return templates.TemplateResponse('post_edit.html',
+                                          {'request': request, 'title': ' изменить пост', 'post': post,
+                                           'user': current_user})
     return RedirectResponse(url='/login')
 
 
@@ -251,7 +268,8 @@ def edit_post(request: Request, post_id: int, title: str = Form(...), content: s
         if len(post.images) > 5:
             error = True
             return templates.TemplateResponse('post_edit.html',
-                                              {'request': request,'title': ' изменить пост', 'error': error, 'post': post, 'user': current_user})
+                                              {'request': request, 'title': ' изменить пост', 'error': error,
+                                               'post': post, 'user': current_user})
         if len(images) >= 1 and images[0].filename != '':
             if post.images:
                 for image in post.images:
