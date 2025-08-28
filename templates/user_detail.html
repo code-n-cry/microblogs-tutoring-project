@@ -5,7 +5,7 @@
 	    {% if not error %}
             <h2 align="center">Информация об авторе:</h2>
             <p><b>Юзернейм</b>: {{ need_user.name }}</p>
-            {% if need.user.avatar %}
+            {% if need_user.avatar %}
                 <p><b>Аватар:</b></p><br>
                 <img src="{{ url_for('static', path=need_user.avatar) }}" style="width: 300px; height: 300px"><br>
              {% endif %}

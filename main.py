@@ -167,9 +167,16 @@ def create_tag(request: Request, db: session = Depends(get_db)):
     return templates.TemplateResponse('create_tag.html', {'request': request, 'user': is_authorized})
 
 
-@app.post('/tags/create')
+@app.post('/tags/create/')
 def create_tag(request: Request, name: str = Form(...), db: session = Depends(get_db)):
-    pass
+    is_authorized = get_current_user(request.cookies.get('access_token'), db=db)
+    if not is_authorized:
+        return RedirectResponse(url='/login', status_code=307)
+    tag = Tag()
+    tag.title = name
+    db.add(tag)
+    db.commit()
+    return RedirectResponse(url='/create_post', status_code=302)
 
 
 @app.get('/profile/edit')
