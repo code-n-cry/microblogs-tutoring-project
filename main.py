@@ -55,7 +55,7 @@ def index(request: Request):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     all_posts = db.query(Post).all()
     return templates.TemplateResponse('index.html',
-                                      {'request': request, 'title': 'Главная', 'user': current_user, \
+                                      {'request': request, 'title': 'Главная', 'user': current_user,
                                        'all_posts': all_posts})
 
 
@@ -113,7 +113,8 @@ def create_get(request: Request, db: session = Depends(get_db)):
     if current_user is None:
         return RedirectResponse(url='/signup')
     return templates.TemplateResponse('create_post.html',
-                                      {'request': request, 'title': 'создать пост', 'tags': all_tags})
+                                      {'request': request, 'title': 'создать пост', 'tags': all_tags,
+                                       'user': current_user})
 
 
 @app.post('/create_post')
@@ -159,12 +160,11 @@ def profile(request: Request, db: session = Depends(get_db)):
 
 
 @app.get('/tags/create/')
-def create_tag(request:Request, db: session = Depends(get_db)):
+def create_tag(request: Request, db: session = Depends(get_db)):
     is_authorized = get_current_user(request.cookies.get('access_token'), db=db)
     if not is_authorized:
         return RedirectResponse(url='/login')
     return templates.TemplateResponse('create_tag.html', {'request': request, 'user': is_authorized})
-    
 
 @app.post('/tags/create/')
 def create_tag(request: Request, name:str = Form(...), db: session = Depends(get_db)):
@@ -214,13 +214,14 @@ def profile_edit(request: Request, name: str = Form(...), avatar: UploadFile = F
 
 @app.get('/users/{user_id}')
 def get_user(request: Request, user_id: int, db: session = Depends(get_db)):
+    current_user = get_current_user(request.cookies.get('access_token'), db=db)
     need_user = db.query(User).get(user_id)
     error = None
     if need_user is None:
         error = True
     return templates.TemplateResponse('user_detail.html',
-                                      {'request': request, 'user': need_user, 'title': 'имя пользователей',
-                                       'error': error})
+                                      {'request': request, 'need_user': need_user, 'title': 'имя пользователей',
+                                       'error': error, 'user': current_user})
 
 
 @app.get('/posts/{post_id}')
