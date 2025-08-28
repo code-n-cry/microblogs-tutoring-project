@@ -118,10 +118,11 @@ def create_get(request: Request, db: session = Depends(get_db)):
 
 
 @app.post('/create_post')
-def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),
+def create_post(request: Request, name: str = Form(...), content: str = Form(...),tag:str = Form(...), images: List[UploadFile] = File(...),
                 db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = Post()
+    post.tags.append(tag)  
     post.title = name
     post.content = content
     post.author = current_user
