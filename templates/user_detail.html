@@ -4,10 +4,10 @@
     <div class="container">
 	    {% if not error %}
             <h2 align="center">Информация об авторе:</h2>
-            <p><b>Юзернейм</b>: {{ user.name }}</p>
-            {% if user.avatar %}
+            <p><b>Юзернейм</b>: {{ need_user.name }}</p>
+            {% if need)user.avatar %}
                 <p><b>Аватар:</b></p><br>
-                <img src="{{ url_for('static', path=user.avatar) }}" style="width: 300px; height: 300px"><br>
+                <img src="{{ url_for('static', path=need_user.avatar) }}" style="width: 300px; height: 300px"><br>
              {% endif %}
         {% else %}
              <h2 align="center">К сожалению, такого пользователя не существует! :(</h2>
