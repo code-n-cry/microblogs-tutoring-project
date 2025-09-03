@@ -20,7 +20,7 @@
             <select class="form-select" aria-label="Default select example" name="tag" id ="tag">
                 <option selected>Выберите тег внизу:</option>
                 {% for tag in tags %}
-                    <option value="{{ loop.index }}">{{ tag.title }}</option>
+                    <option value="{{ tag.title }}" name="tag">{{ tag.title }}</option>
                 {% endfor %}
             </select>
         </div>
