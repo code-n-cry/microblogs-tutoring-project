@@ -118,12 +118,12 @@ def create_get(request: Request, db: session = Depends(get_db)):
 
 
 @app.post('/create_post')
-def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),
+def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),tag: str = Form(...),
                 db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = Post()
-    # tag_model = db.query(Tag).filter_by(title=tag).first()
-    # post.tags.append(tag_model)
+    tag_model = db.query(Tag).filter_by(title=tag).first()
+    post.tags.append(tag_model)
     if not name or not content:
         error = 'Введите название и содержание!'
         all_tags = db.query(Tag).all()

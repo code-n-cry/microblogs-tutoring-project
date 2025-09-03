@@ -17,7 +17,7 @@
             <input class="form-control" type="file" id="formFileMultiple" multiple name="images">
         </div>
         <div class="mb-3">
-            <select class="form-select" aria-label="Default select example" name="tag">
+            <select class="form-select" aria-label="Default select example" name="tag" id ="tag">
                 <option selected>Выберите тег внизу:</option>
                 {% for tag in tags %}
                     <option value="{{ loop.index }}">{{ tag.title }}</option>
