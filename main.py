@@ -2,7 +2,7 @@ import jwt
 from fastapi import FastAPI, Request, Cookie, Depends, Form, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from typing import List
+from typing import List, Annotated
 from fastapi.responses import RedirectResponse
 
 from models import User, Post, Image, Tag
@@ -118,11 +118,18 @@ def create_get(request: Request, db: session = Depends(get_db)):
 
 
 @app.post('/create_post')
-def create_post(request: Request, name: str = Form(...), content: str = Form(...),tag:str = Form(...), images: List[UploadFile] = File(...),
+def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),
                 db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = Post()
-    post.tags.append(tag)  
+    # tag_model = db.query(Tag).filter_by(title=tag).first()
+    # post.tags.append(tag_model)
+    if not name or not content:
+        error = 'Введите название и содержание!'
+        all_tags = db.query(Tag).all()
+        return templates.TemplateResponse('create_post.html',
+                                          {'request': request, 'title': 'создать пост', 'tags': all_tags,
+                                           'user': current_user, 'error': error})
     post.title = name
     post.content = content
     post.author = current_user
@@ -167,19 +174,22 @@ def create_tag(request: Request, db: session = Depends(get_db)):
         return RedirectResponse(url='/login')
     return templates.TemplateResponse('create_tag.html', {'request': request, 'user': is_authorized})
 
+
 @app.post('/tags/create/')
-def create_tag(request: Request, name:str = Form(...), db: session = Depends(get_db)):
+def create_tag(request: Request, name: str = Form(...), db: session = Depends(get_db)):
     is_authorized = get_current_user(request.cookies.get('access_token'), db=db)
     if not is_authorized:
         return RedirectResponse(url='/login')
     existing_tag = db.query(Tag).filter(Tag.title == name).first()
     if existing_tag:
-        return templates.TemplateResponse ('create_tag.html',{'request': request,'user': is_authorized,'error': 'тег c таким именем уже существует.', 'name': name})
+        return templates.TemplateResponse('create_tag.html', {'request': request, 'user': is_authorized,
+                                                              'error': 'тег c таким именем уже существует.',
+                                                              'name': name})
     new_tag = Tag(title=name)
     db.add(new_tag)
     db.commit()
 
-    return RedirectResponse(url='/create_post',status_code=302)
+    return RedirectResponse(url='/create_post', status_code=302)
 
 
 @app.get('/profile/edit')
@@ -306,6 +316,6 @@ def edit_post(request: Request, post_id: int, title: str = Form(...), content: s
                 with open(path + '/' + image.filename, "wb") as images_file_path:
                     shutil.copyfileobj(image.file, images_file_path)
                 db.add(image_file)
-            db.commit()
-            return RedirectResponse(url='/my_posts', status_code=302)
-        return RedirectResponse(url='/login', status_code=302)
+        db.commit()
+        return RedirectResponse(url='/my_posts', status_code=302)
+    return RedirectResponse(url='/login', status_code=302)

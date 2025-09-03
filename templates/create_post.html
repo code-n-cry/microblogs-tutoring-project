@@ -2,14 +2,14 @@
 
 {% block content %}
 <div class="container">
-    <h2 class="m-3" align="center">создать пост</h2>
+    <h2 class="m-3" align="center">Создать пост</h2>
     <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
-            <label for="name" class="form-label">введите название</label>
+            <label for="name" class="form-label">Обязательно введите название</label>
             <input type="text" class="form-control" name="name">
         </div>
         <div class="mb-3">
-            <label for="text" class="form-label">содержание поста</label>
+            <label for="text" class="form-label">содержание поста(ввести надо обязательно)</label>
             <textarea class="form-control" rows="3" name="content"></textarea>
         </div>
         <div class="mb-3">
@@ -17,7 +17,7 @@
             <input class="form-control" type="file" id="formFileMultiple" multiple name="images">
         </div>
         <div class="mb-3">
-            <select class="form-select" aria-label="Default select example">
+            <select class="form-select" aria-label="Default select example" name="tag">
                 <option selected>Выберите тег внизу:</option>
                 {% for tag in tags %}
                     <option value="{{ loop.index }}">{{ tag.title }}</option>
