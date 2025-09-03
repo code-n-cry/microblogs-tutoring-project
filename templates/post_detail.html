@@ -6,6 +6,9 @@
             <h2 align="center">Информация о посте:</h2>
             <p><b>Название:</b> {{ post.title }}</p>
             <p><b>Содержание:</b> {{ post.content }}</p>
+             {% if post.tags %}
+            <p class="btn btn-green-800">{{ post.tags[0].title}}</p>
+            {% endif %}
 
             {% if post.image %}
                 <p><b>Изображение:</b></p><br>
