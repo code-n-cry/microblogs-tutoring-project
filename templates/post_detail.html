@@ -7,7 +7,10 @@
             <p><b>Название:</b> {{ post.title }}</p>
             <p><b>Содержание:</b> {{ post.content }}</p>
              {% if post.tags %}
-            <p class="btn btn-green-800">{{ post.tags[0].title}}</p>
+
+                    {% for i in post.tags %}
+                        <p class="card-text btn btn-green-800">{{ i.title }}</p>
+                    {%  endfor %}
             {% endif %}
 
             {% if post.image %}
