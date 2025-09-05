@@ -36,9 +36,14 @@
                 <h5 class="card-title"><b>{{ post.title }}</b></h5>
                 <p class="card-text">{{ post.content }}</p>
                 <a href="/posts/{{ post.id }}" class="card-link">О посте</a>
+                <ul>
+
                 {% if post.tags %}
-                <p class="card-text btn btn-green-800">{{ post.tags[0].title}}</p>
+                    {% for i in post.tags %}
+                        <li class="card-text btn btn-green-800">{{ i.title }}</li>
+                    {%  endfor %}
                 {% endif %}
+                </ul>
                 <a href="/users/{{ post.author.id }}" class="card-link">Об авторе</a>
             </div>
         </div>

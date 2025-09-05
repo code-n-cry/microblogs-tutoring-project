@@ -17,6 +17,13 @@
                 <label for="formFile" class="form-label">Загрузить картинки</label>
                 <input class="form-control" type="file" id="formFileMultiple" multiple name="images">
             </div>
+            <div class="mb-3">
+                <label for="tag" class="form-label">Изменить теги</label>
+                <select class="form-select" aria-label="Default select example" name="tags" id ="tag" multiple>
+                {% for tag in tags %}
+                    <option value="{{ tag.title }}" name="tags">{{ tag.title }}</option>
+                {% endfor %}
+                </select>
             <button class="btn btn-success mb-2">Изменить</button>
         </form>
         <p class="text-danger">{{ error }}</p>

@@ -7,9 +7,12 @@
             <p><b>Название:</b> {{ post.title }}</p>
             <p><b>Содержание:</b> {{ post.content }}</p>
              {% if post.tags %}
-            <p class="btn btn-green-800">{{ post.tags[0].title}}</p>
+            <ul>
+                    {% for i in post.tags %}
+                        <li class="card-text btn btn-green-800">{{ i.title }}</li>
+                    {%  endfor %}
             {% endif %}
-
+            </ul>
             {% if post.image %}
                 <p><b>Изображение:</b></p><br>
                 <img src="{{ url_for('static', path=post.image) }}" style="max-width: 300px;"><br>

@@ -118,13 +118,13 @@ def create_get(request: Request, db: session = Depends(get_db)):
 
 
 @app.post('/create_post')
-def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),tag: List[str] = Form(...),
+def create_post(request: Request, name: str = Form(...), content: str = Form(...), images: List[UploadFile] = File(...),tags: List[str] = Form(...),
                 db: session = Depends(get_db)):
-    print(tag)
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = Post()
-    tag_model = db.query(Tag).filter_by(title=tag).first()
-    post.tags.append(tag_model)
+    for tag in tags:
+        tag_list = db.query(Tag).filter_by(title=tag).first()
+        post.tags.append(tag_list)
     if not name or not content:
         error = 'Введите название и содержание!'
         all_tags = db.query(Tag).all()
@@ -279,16 +279,18 @@ def delete_post(request: Request, post_id: int, db: session = Depends(get_db)):
 def edit_post(request: Request, post_id: int, db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = db.query(Post).filter_by(author=current_user, id=post_id).first()
+    all_tags = db.query(Tag).all()
     if post:
         return templates.TemplateResponse('post_edit.html',
-                                          {'request': request, 'title': ' изменить пост', 'post': post,
+                                          {'request': request, 'title': ' изменить пост', 'post': post,'tags':
+                                           all_tags,
                                            'user': current_user})
     return RedirectResponse(url='/login')
 
 
 @app.post("/posts/{post_id}/edit")
 def edit_post(request: Request, post_id: int, title: str = Form(...), content: str = Form(...),
-              images: List[UploadFile] = File(...), db: session = Depends(get_db)):
+              images: List[UploadFile] = File(...),tags: List[str] = Form(...), db: session = Depends(get_db)):
     current_user = get_current_user(request.cookies.get('access_token'), db=db)
     post = db.query(Post).filter_by(author=current_user, id=post_id).first()
     error = None
@@ -297,6 +299,16 @@ def edit_post(request: Request, post_id: int, title: str = Form(...), content: s
             post.title = title
         if post.content != content:
             post.content = content
+        if post.tags: 
+            post_tag = []
+            for i in post.tags:
+                post.tags.remove(i)
+                post_tag.append(i.title)
+            if post_tag != tags:
+
+                for tag in tags:
+                    tag_list = db.query(Tag).filter_by(title=tag).first()
+                    post.tags.append(tag_list)
         if len(post.images) > 5:
             error = True
             return templates.TemplateResponse('post_edit.html',
